@@ -1,82 +1,111 @@
+import { GetStaticProps } from 'next';
+import { atom, useRecoilState } from 'recoil';
+
+import { useSession, signIn, signOut } from "next-auth/react"
 import Head from 'next/head'
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+export type CartItemType = {
+  id: number;
+  price: number;
+  title: string;
+  description: string;
+  image: string;
+  amount: number;
+  category: string;
+}
 
+export const CartItem = atom({
+  key: 'CartItem',
+  default: [] as CartItemType[]
+
+})
+// @ts-ignore
 export default function Home() {
+  const { data: session } = useSession()
+  console.log(session);
+  // const [loading, setloading] = useState(true);
+  const [FetchProducts, setFetchProducts] = useState([]);
+  useEffect(() => {
+    fetch('https://fakestoreapi.com/products').then((response) => response.json()).then((data) => setFetchProducts(data))
+  }, []);
+  console.log("Fetched data", FetchProducts);
+  const [Cart, setCart] = useRecoilState(CartItem);
+  const HandleAddToCart = (ClickedItem: CartItemType) => {
+    setCart(prev => {
+      const isitemthere = prev.find(item => item.id === ClickedItem.id)
+      if (isitemthere) {
+        return prev.map(item => (
+
+          item.id === ClickedItem.id ? {
+            ...item, amount: item.amount + 1
+          } : item
+        ))
+      }
+      return [...prev, { ...ClickedItem, amount: 1 }]
+    })
+  }
+
+
+  console.log("CartItems", Cart);
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
+    <div className="">
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>
+          Store from typescript
+        </title>
       </Head>
+      <main className="m-5 text-2xl">
 
-      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+        <div className='flex justify-between bg-blue-300 rounded-md min-w-full px-5 '>
+          <h1>
+            Shopping cart
+          </h1>
+          <div>
+            <div>
+              {
+                session ? (<div>
+                  hello master
+                  {(session?.user.name)}
+                </div>) : <div>
+                  <button onClick={() => signIn()}>
+                    signIn
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
-            pages/index.tsx
-          </code>
-        </p>
-
-        <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          <h1>
+            <Link href={'/Basket'}> Basket</Link>
+            {Cart.length}
+          </h1>
         </div>
-      </main>
+        <div className='pt-10'>
+          <div>
+            {
+              // @ts-ignore
 
-      <footer className="flex h-24 w-full items-center justify-center border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="ml-2 h-4" />
-        </a>
-      </footer>
-    </div>
+            }
+          </div>
+          {
+            FetchProducts.map((product: CartItemType) => {
+              return (
+
+                <div key={product.id} >
+
+                  <h1>{product.title}</h1>
+                  <img src={product.image} className="h-36 w-36 object-contain" alt={product.title} />
+                  <p>{product.description}</p>
+                  <p>$ {product.price}</p>
+                  <button onClick={() => HandleAddToCart(product)} className="bg-yellow-400 rounded-md"> Add to Cart</button>
+                </div>
+              )
+            })
+          }
+
+        </div>
+      </main >
+    </div >
   )
 }
