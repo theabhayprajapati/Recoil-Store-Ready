@@ -5,6 +5,7 @@ import { useSession, signIn, signOut } from "next-auth/react"
 import Head from 'next/head'
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Header from '../components/Header';
 export type CartItemType = {
   id: number;
   price: number;
@@ -22,6 +23,7 @@ export const CartItem = atom({
 })
 // @ts-ignore
 export default function Home() {
+  
   const { data: session } = useSession()
   console.log(session);
   // const [loading, setloading] = useState(true);
@@ -57,30 +59,7 @@ export default function Home() {
       </Head>
       <main className="m-5 text-2xl">
 
-        <div className='flex justify-between bg-blue-300 rounded-md min-w-full px-5 '>
-          <h1>
-            Shopping cart
-          </h1>
-          <div>
-            <div>
-              {
-                session ? (<div>
-                  hello master
-                  {(session?.user.name)}
-                </div>) : <div>
-                  <button onClick={() => signIn()}>
-                    signIn
-                  </button>
-                </div>
-              }
-            </div>
-          </div>
-
-          <h1>
-            <Link href={'/Basket'}> Basket</Link>
-            {Cart.length}
-          </h1>
-        </div>
+        <Header />
         <div className='pt-10'>
           <div>
             {
@@ -91,7 +70,6 @@ export default function Home() {
           {
             FetchProducts.map((product: CartItemType) => {
               return (
-
                 <div key={product.id} >
 
                   <h1>{product.title}</h1>

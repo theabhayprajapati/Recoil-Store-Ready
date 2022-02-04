@@ -9,11 +9,13 @@ function App({
   pageProps: { session, ...pageProps },
 }) {
   return (
+
     <RecoilRoot>
       <SessionProvider session={session}>
         <Component {...pageProps} />
       </SessionProvider>
     </RecoilRoot>
+
   )
 }
 

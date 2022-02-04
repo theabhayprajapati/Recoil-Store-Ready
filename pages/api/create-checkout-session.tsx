@@ -8,7 +8,6 @@ export default async (req: Request, res: Response) => {
 
     const transformedItems = items?.map(item => ({
         description: item.description,
-
         quantity: 1,
         price_data: {
             currency: 'usd',
@@ -35,6 +34,7 @@ export default async (req: Request, res: Response) => {
         success_url: `${process.env.HOST}/Success`,
         cancel_url: `${process.env.HOST}/Cancel`,
         metadata: {
+            productname: items.map(item => item.title).toString(),
             email,
             images: JSON.stringify(items?.map((item => item.image)))
         }

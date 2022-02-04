@@ -19,13 +19,15 @@ const Basket = () => {
             {
                 // * the main problem was with email and 
                 items: CartitemBasket,
-                email: 'abhayoprajapati@gmail.com',
+                email: session?.user.email,
             })
+
+
         console.log('All good checkoutSessions 📤');
         // * redirect user and cutomto stripe
         // @ts-ignore
         // ? Redirect user to stripe checkout page
-
+        
         const result = await stripe.redirectToCheckout({
             sessionId: checkoutSessions.data.id,
         })
